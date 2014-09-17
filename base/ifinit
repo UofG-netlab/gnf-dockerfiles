@@ -1,0 +1,29 @@
+#!/bin/bash
+
+injected=("if1" "if2")
+
+while true
+do
+	
+	# Get the list of interfaces
+	interfaces=`tail -n+3 /proc/net/dev | cut -d':' -f1 | tr -d ' '`
+
+	matchcount=0
+	# Check if the interfaces have been injected
+	for ifname in ${injected[@]}
+	do
+		if [[ ${interfaces[*]} =~ (^| )$ifname($| ) ]]
+		then
+			((matchcount++))
+		fi
+	done
+
+	# Compare number of requested/injected interfaces
+	if [[ ${#injected[@]} = $matchcount ]]
+	then
+		break
+	fi
+
+	# Sleep and try again
+	sleep 1
+done
