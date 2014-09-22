@@ -7,6 +7,7 @@ def callback(pkt):
 
         if 'hack' in parsed:
                 pkt.drop()
+                print "packet dropped"
         else:
                 pkt.accept()
 
