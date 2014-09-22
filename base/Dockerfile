@@ -9,5 +9,6 @@ RUN apt-get update && apt-get install -y \
 	iptables 
 
 ADD ifinit /usr/local/bin/
+ADD brinit /usr/local/bin/
 RUN chmod +x /usr/local/bin/ifinit
 ENTRYPOINT ifinit && /bin/bash
