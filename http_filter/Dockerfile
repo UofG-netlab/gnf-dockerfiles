@@ -4,6 +4,7 @@ MAINTAINER Kyle White
 RUN apt-get install -y \
     python \ 
     scapy \
+    tcpdump \
     python-nfqueue \
     build-essential \
     python-dev \
@@ -19,4 +20,5 @@ RUN chmod +x ./data/main.py
 ENTRYPOINT ifinit && \
 	brinit && \
 	iptables -A FORWARD -j NFQUEUE -p tcp --destination-port 80 --queue-num 1 && \
-	python ./data/main.py
+	python ./data/main.py & && \
+	/bin/bash/
