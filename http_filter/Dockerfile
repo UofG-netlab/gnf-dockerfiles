@@ -1,5 +1,5 @@
 # KW Dockerfile for Http_filter
-FROM glanf/base
+FROM ubuntu
 MAINTAINER Kyle White
 
 RUN brctl addbr br0
