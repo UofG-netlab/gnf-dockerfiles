@@ -1,5 +1,4 @@
-# KW Dockerfile for Http_filter
-FROM ubuntu
+FROM glanf/base
 MAINTAINER Kyle White
 
 RUN mkdir data
