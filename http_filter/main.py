@@ -6,10 +6,10 @@ def callback(pkt):
         print parsed.encode('hex')
 
         if 'hack' in parsed:
-                pkt.drop()
-                print "packet dropped"
+            pkt.drop()
+            print "packet dropped"
         else:
-                pkt.accept()
+            pkt.accept()
 
 
 nfqueue = NetfilterQueue()

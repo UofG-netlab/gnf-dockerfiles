@@ -20,5 +20,4 @@ RUN chmod +x ./data/main.py
 ENTRYPOINT ifinit && \
 	brinit && \
 	iptables -A FORWARD -j NFQUEUE -p tcp --destination-port 80 --queue-num 1 && \
-	python ./data/main.py & && \
 	/bin/bash/
