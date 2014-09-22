@@ -3,7 +3,9 @@
 import nfqueue
 from scapy.all import *
 import os
-os.system('iptables -A OUTPUT -p tcp --dport 80 -j NFQUEUE')
+
+os.system('iptables -F')
+os.system('iptables -A FORWARD -p tcp --dport 80 -j NFQUEUE')
 
 def callback(payload):
     data = payload.get_data()
