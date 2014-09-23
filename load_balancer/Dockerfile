@@ -19,4 +19,4 @@ RUN chmod +x ./data/loadbalancer.py
 
 ENTRYPOINT ifinit && \
         brinit && \
-        python loadbalancer.py
+        python ./data/loadbalancer.py
