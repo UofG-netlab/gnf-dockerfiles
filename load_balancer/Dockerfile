@@ -4,6 +4,7 @@ MAINTAINER Richard Cziva
 RUN apt-get install -y \
     python \ 
     scapy \
+    tcpdump \
     python-nfqueue \
     build-essential \
     python-dev \
@@ -12,6 +13,10 @@ RUN apt-get install -y \
 
 RUN pip install netfilterqueue
 
-ADD loadbalancer.py .
+RUN mkdir data
+ADD loadbalancer.py ./data/
+RUN chmod +x ./data/loadbalancer.py
 
-ENTRYPOINT ifinit && brinit && python loadbalancer.py
+ENTRYPOINT ifinit && \
+        brinit && \
+        python loadbalancer.py
