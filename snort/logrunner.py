@@ -4,7 +4,7 @@ import os
 import httplib
 
 def postNotification(notification):
-	conn = httplib.HTTPConnection("172.17.42.1")
+	conn = httplib.HTTPConnection("172.17.42.1:8081")
 	conn.request("POST", "/notification", notification)
 	conn.close()
 
@@ -19,7 +19,7 @@ def tail(file):
 		else:
 			yield line
 
-
+print 'logrunner is running ...'
 with open(sys.argv[1]) as f:
 	chunk = []
 	for line in tail(f):
