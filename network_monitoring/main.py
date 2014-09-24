@@ -2,9 +2,14 @@
 import requests
 import time, threading
 import subprocess
+import os
 from subprocess import Popen
 
 delta = os.environ.get('DELTA')
+
+if delta is None:
+    print 'Env has not been set properly'
+    sys.exit()
 
 url = 'http://172.17.42.1:8081/notification'
 

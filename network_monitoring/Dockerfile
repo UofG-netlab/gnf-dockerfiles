@@ -1,4 +1,4 @@
-# A wee DNS load balancer for GLANF
+# Proof of concept for Network Monitoring Container
 
 FROM glanf/base
 MAINTAINER Kyle White
