@@ -20,7 +20,7 @@ def stat():
         x = out.split('\n')
         inbytes = x[4].split()[3]
         outbytes = x[5].split()[3]
-        notif = "inbytes = " +  inbytes + ", Outbytes" + outbytes
+        notif = "InBytes = " +  inbytes + ", OutBytes" + outbytes
         requests.post(url, data=notif)
 
 
