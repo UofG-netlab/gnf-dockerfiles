@@ -21,7 +21,7 @@ RUN chmod +x ./data/loadbalancer.py
 
 # Set your domain and webservers here!
 ENV DOMAIN testwebpage
-ENV WEBSERVERS "10.0.0.1 10.0.0.3"
+ENV WEBSERVERS 10.0.0.1 10.0.0.3
 
 ENTRYPOINT ifinit && \
         brinit && \
