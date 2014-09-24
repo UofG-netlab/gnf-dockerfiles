@@ -15,8 +15,8 @@ RUN mkdir data
 ADD main.py ./data/
 RUN chmod +x ./data/main.py
 
-# Set delta for notification of stats here (seconds)
-ENV DELTA 5.0
+# Set delta for notification of stats here (float, seconds)
+ENV DELTA 60.0
 
 ENTRYPOINT ifinit && \
         brinit && \

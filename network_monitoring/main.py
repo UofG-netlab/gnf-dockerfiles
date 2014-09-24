@@ -5,7 +5,7 @@ import subprocess
 import os
 from subprocess import Popen
 
-delta = os.environ.get('DELTA')
+delta = float(os.environ.get('DELTA'))
 
 if delta is None:
     print 'Env has not been set properly'
