@@ -27,6 +27,5 @@ with open(sys.argv[1]) as f:
 			chunk.append(line)
 		else:
 			alert = ''.join(chunk)
-			print alert
 			postNotification(alert)
 			chunk = []
