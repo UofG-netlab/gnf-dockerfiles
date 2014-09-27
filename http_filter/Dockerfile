@@ -12,6 +12,7 @@ RUN apt-get install -y \
     python-pip
 
 RUN pip install netfilterqueue
+RUN pip install requests
 
 RUN mkdir data
 ADD main.py ./data/

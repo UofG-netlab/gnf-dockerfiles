@@ -1,5 +1,6 @@
 from netfilterqueue import NetfilterQueue
 from scapy.all import *
+import requests
 
 def callback(pkt):
         parsed = pkt.get_payload()
@@ -8,6 +9,7 @@ def callback(pkt):
         if 'hack' in parsed:
             pkt.drop()
             print "packet dropped"
+            requests.post(url, data="Http Filtered content")	
         else:
             pkt.accept()
 
