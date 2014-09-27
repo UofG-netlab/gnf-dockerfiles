@@ -2,6 +2,8 @@ from netfilterqueue import NetfilterQueue
 from scapy.all import *
 import requests
 
+url = 'http://172.17.42.1:8081/notification'
+
 def callback(pkt):
         parsed = pkt.get_payload()
         print parsed.encode('hex')
