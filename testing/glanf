@@ -1,0 +1,106 @@
+#!/bin/bash
+
+# GLANF project
+# Author: Simon Jouet
+# Description: Network function virtualization tester
+
+BRIDGE_NAME=ovsbr0
+
+getInterfacePort ()
+{
+    regex="ofport\s+:\s+([[:digit:]]+)"
+    ifinfo=$(sudo ovs-vsctl find interface name=$1)
+
+    [[ $ifinfo =~ $regex ]]
+
+    echo "${BASH_REMATCH[1]}"
+}
+
+getHostInterfaceName ()
+{
+    NSPID=$(docker inspect --format='{{ .State.Pid }}' $1)
+    echo v${2}pl${NSPID}
+}
+
+clean_ovs()
+{
+    ovs-vsctl del-br ${BRIDGE_NAME}
+    ovs-vsctl add-br ${BRIDGE_NAME}
+    ovs-ofctl del-flows ${BRIDGE_NAME}
+}
+
+# Check the privileges
+if [ "$(id -u)" != "0" ]; then
+    echo "Sorry, you are not root."
+    exit 1
+fi
+
+# Parse the parameters
+COMMAND=$1
+HOSTIMAGE=$2
+MIDDLEBOXIMAGES=${@:3}
+
+case "$COMMAND" in
+        start)
+            # Initialize OVS
+            clean_ovs
+
+            ### Start and configure the source host
+            # Start the source docker container
+            SOURCEID=$(docker run -itd --cap-add=NET_ADMIN --name="source" $HOSTIMAGE)
+            echo started source $SOURCEID
+            # Inject the interface connected to OVS
+            pipework ${BRIDGE_NAME} $SOURCEID 10.0.0.1/8
+            SOURCEPORT=$(getInterfacePort $(getHostInterfaceName $SOURCEID eth1))
+            PREVIOUSPORT=$SOURCEPORT
+
+            ### Start the middleboxes
+            for i in ${MIDDLEBOXIMAGES}
+            do
+                MIDDLEBOXID=$(docker run -itd --cap-add=NET_ADMIN $i)
+                echo started middlebox $MIDDLEBOXID
+
+                # Attach the two interfaces
+                pipework ${BRIDGE_NAME} -i if1 $MIDDLEBOXID 0/0
+                pipework ${BRIDGE_NAME} -i if2 $MIDDLEBOXID 0/0
+
+                #
+                IF1PORT=$(getInterfacePort $(getHostInterfaceName $MIDDLEBOXID if1))
+                IF2PORT=$(getInterfacePort $(getHostInterfaceName $MIDDLEBOXID if2))
+
+                # Insert the forwarding rules
+                ovs-ofctl add-flow ${BRIDGE_NAME} in_port=${PREVIOUSPORT},nw_src=10.0.0.1,dl_type=0x0800,actions=output:${IF1PORT}
+                ovs-ofctl add-flow ${BRIDGE_NAME} in_port=${IF1PORT},nw_src=10.0.0.2,dl_type=0x0800,actions=output:${PREVIOUSPORT}
+
+                #
+                PREVIOUSPORT=$IF2PORT
+            done
+
+
+            ### Start and configure the destionation host
+            DESTID=$(docker run -itd --cap-add=NET_ADMIN --name="destination" $HOSTIMAGE)
+            echo started destination $DESTID
+            pipework ${BRIDGE_NAME} $DESTID 10.0.0.2/8
+            DESTPORT=$(getInterfacePort $(getHostInterfaceName $DESTID eth1))
+
+            ovs-ofctl add-flow ${BRIDGE_NAME} in_port=${PREVIOUSPORT},nw_src=10.0.0.1,dl_type=0x0800,actions=output:${DESTPORT}
+            ovs-ofctl add-flow ${BRIDGE_NAME} in_port=${DESTPORT},nw_src=10.0.0.2,dl_type=0x0800,actions=output:${PREVIOUSPORT}
+
+            # Set default behaviour otherwise
+            ovs-ofctl add-flow ${BRIDGE_NAME} in_port=${SOURCEPORT},actions=output:${DESTPORT}
+            ovs-ofctl add-flow ${BRIDGE_NAME} in_port=${DESTPORT},actions=output:${SOURCEPORT}
+            ;;
+        stop)
+            docker ps -q | xargs docker stop
+            ;;
+        clean)
+            docker ps -aq | xargs docker rm -f 
+            clean_ovs
+            ;;
+        *)
+            echo "Usage: $0"
+            echo -e "\tstart <host_image> <middlebox_image1> ..."
+            echo -e "\tstop"
+            echo -e "\tclean"
+            exit 1
+esac
